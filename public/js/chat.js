@@ -5,12 +5,19 @@ const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
+const $location = document.querySelector('#location')
 
-const messageTemplate = document.querySelector('#message-template').innerHTML
+const $messageTemplate = document.querySelector('#message-template').innerHTML
+const $locationTemplate = document.querySelector('#location-message-template').innerHTML
 
 socket.on('message', (message) => {
-	const html = Mustache.render(messageTemplate, { message })
+	const html = Mustache.render($messageTemplate, { message })
 	$messages.insertAdjacentHTML('beforeend', html)
+})
+
+socket.on('locationMessage', (url) => {
+	const html = Mustache.render($locationTemplate, { url })
+	$location.insertAdjacentHTML('beforeend', html)
 })
 
 $messageForm.addEventListener('submit', (e) => {
@@ -42,9 +49,9 @@ document.querySelector('#send-location').addEventListener('click', () => {
 				latitude: position.coords.latitude,
 				longitude: position.coords.longitude,
 			},
-			(message) => {
+			(url) => {
 				$sendLocationButton.removeAttribute('disabled')
-				console.log(message)
+				console.log(url)
 			}
 		)
 	})

@@ -31,16 +31,9 @@ io.on('connection', (socket) => {
 		io.emit('message', 'A user has left!')
 	})
 	socket.on('sendLocation', (coords, callback) => {
-		io.emit('message', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)
+		io.emit('locationMessage', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)
 		callback('Location shared!')
 	})
-
-	// socket.emit('countUpdated', count)
-
-	// socket.on('increment', () => {
-	// 	count++
-	// 	io.emit('countUpdated', count)
-	// })
 })
 
 server.listen(port, () => {
