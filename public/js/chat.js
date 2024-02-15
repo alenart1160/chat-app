@@ -1,5 +1,4 @@
 const socket = io()
-
 const $messageForm = document.querySelector('#message-form')
 const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
@@ -7,17 +6,26 @@ const $sendLocationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
 const $location = document.querySelector('#location')
 
-const $messageTemplate = document.querySelector('#message-template').innerHTML
-const $locationTemplate = document.querySelector('#location-message-template').innerHTML
+const messageTemplate = document.querySelector('#message-template').innerHTML
+const locationTemplate = document.querySelector('#location-message-template').innerHTML
+
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
 socket.on('message', (message) => {
-	const html = Mustache.render($messageTemplate, { message })
+	const html = Mustache.render(messageTemplate, {
+		message: message.text,
+		createdAt: moment(message.createdAt).format('h:mm a'),
+	})
+	console.log(html)
 	$messages.insertAdjacentHTML('beforeend', html)
 })
 
-socket.on('locationMessage', (url) => {
-	const html = Mustache.render($locationTemplate, { url })
-	$location.insertAdjacentHTML('beforeend', html)
+socket.on('locationMessage', (message) => {
+	const html = Mustache.render(locationTemplate, {
+		url: message.url,
+		createdAt: moment(message.createdAt).format('h:mm a'),
+	})
+	$messages.insertAdjacentHTML('beforeend', html)
 })
 
 $messageForm.addEventListener('submit', (e) => {
@@ -35,7 +43,7 @@ $messageForm.addEventListener('submit', (e) => {
 	})
 })
 
-document.querySelector('#send-location').addEventListener('click', () => {
+$sendLocationButton.addEventListener('click', () => {
 	if (!navigator.geolocation) {
 		return alert('Geolocation is not supported by your browser.')
 	}
@@ -55,4 +63,11 @@ document.querySelector('#send-location').addEventListener('click', () => {
 			}
 		)
 	})
+})
+
+socket.emit('join', { username, room }, (error) => {
+	if (error) {
+		alert(error)
+		location.href = '/'
+	}
 })
